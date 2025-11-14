@@ -1,161 +1,8 @@
 <script lang="ts">
   import Sidenote from '$lib/components/Sidenote.svelte';
   import MarginNote from '$lib/components/MarginNote.svelte';
-  import ObservableCell from '$lib/components/ObservableCell.svelte';
-  import { Runtime } from '@observablehq/runtime';
+  import InteractiveChart from '$lib/components/InteractiveChart.svelte';
 
-  // Create a simple inline Observable notebook
-  const notebook = {
-    modules: [
-      {
-        id: 'interactive-demo',
-        variables: [
-          {
-            name: 'chart',
-            inputs: ['d3', 'width'],
-            value: (d3: any, width: number) => {
-              const height = 400;
-              const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-
-              // Generate some data
-              const data = Array.from({ length: 50 }, (_, i) => ({
-                x: i,
-                y: Math.sin(i / 5) * 50 + 100 + Math.random() * 20
-              }));
-
-              const svg = d3.create('svg')
-                .attr('width', width)
-                .attr('height', height)
-                .attr('viewBox', [0, 0, width, height])
-                .attr('style', 'max-width: 100%; height: auto;');
-
-              const x = d3.scaleLinear()
-                .domain([0, data.length - 1])
-                .range([margin.left, width - margin.right]);
-
-              const y = d3.scaleLinear()
-                .domain([0, d3.max(data, (d: any) => d.y)])
-                .nice()
-                .range([height - margin.bottom, margin.top]);
-
-              const line = d3.line()
-                .x((d: any) => x(d.x))
-                .y((d: any) => y(d.y))
-                .curve(d3.curveNatural);
-
-              svg.append('g')
-                .attr('transform', `translate(0,${height - margin.bottom})`)
-                .call(d3.axisBottom(x));
-
-              svg.append('g')
-                .attr('transform', `translate(${margin.left},0)`)
-                .call(d3.axisLeft(y));
-
-              svg.append('path')
-                .datum(data)
-                .attr('fill', 'none')
-                .attr('stroke', '#a00000')
-                .attr('stroke-width', 2)
-                .attr('d', line);
-
-              svg.selectAll('circle')
-                .data(data)
-                .join('circle')
-                .attr('cx', (d: any) => x(d.x))
-                .attr('cy', (d: any) => y(d.y))
-                .attr('r', 3)
-                .attr('fill', '#a00000')
-                .attr('opacity', 0.6);
-
-              return svg.node();
-            }
-          },
-          {
-            name: 'd3',
-            value: async () => {
-              const d3 = await import('d3');
-              return d3;
-            }
-          },
-          {
-            name: 'width',
-            value: 640
-          }
-        ]
-      }
-    ]
-  };
-
-  // For now, let's create a simple D3 visualization directly
-  import { onMount } from 'svelte';
-
-  let chartContainer: HTMLDivElement;
-
-  onMount(async () => {
-    const d3 = await import('d3');
-
-    const width = Math.min(640, chartContainer.clientWidth);
-    const height = 400;
-    const margin = { top: 20, right: 30, bottom: 30, left: 40 };
-
-    const data = Array.from({ length: 50 }, (_, i) => ({
-      x: i,
-      y: Math.sin(i / 5) * 50 + 100 + Math.random() * 20
-    }));
-
-    const svg = d3
-      .select(chartContainer)
-      .append('svg')
-      .attr('width', width)
-      .attr('height', height)
-      .attr('viewBox', [0, 0, width, height])
-      .attr('style', 'max-width: 100%; height: auto; font-family: inherit;');
-
-    const x = d3
-      .scaleLinear()
-      .domain([0, data.length - 1])
-      .range([margin.left, width - margin.right]);
-
-    const y = d3
-      .scaleLinear()
-      .domain([0, d3.max(data, (d: any) => d.y)!])
-      .nice()
-      .range([height - margin.bottom, margin.top]);
-
-    const line = d3
-      .line()
-      .x((d: any) => x(d.x))
-      .y((d: any) => y(d.y))
-      .curve(d3.curveNatural);
-
-    svg
-      .append('g')
-      .attr('transform', `translate(0,${height - margin.bottom})`)
-      .call(d3.axisBottom(x));
-
-    svg
-      .append('g')
-      .attr('transform', `translate(${margin.left},0)`)
-      .call(d3.axisLeft(y));
-
-    svg
-      .append('path')
-      .datum(data)
-      .attr('fill', 'none')
-      .attr('stroke', '#a00000')
-      .attr('stroke-width', 2)
-      .attr('d', line);
-
-    svg
-      .selectAll('circle')
-      .data(data)
-      .join('circle')
-      .attr('cx', (d: any) => x(d.x))
-      .attr('cy', (d: any) => y(d.y))
-      .attr('r', 3)
-      .attr('fill', '#a00000')
-      .attr('opacity', 0.6);
-  });
 </script>
 
 <svelte:head>
@@ -178,16 +25,16 @@
       The foundation of good design lies in respecting the reader's intelligence and time. Every element on the page should serve a purpose<MarginNote>This is a margin note. Unlike sidenotes, margin notes don't have numbers and are used for asides and commentary.</MarginNote>, and decoration for its own sake should be avoided. As Tufte famously advocated, we should maximize the data-ink ratio—the proportion of ink devoted to displaying data versus other elements.
     </p>
 
-    <h2>Interactive Visualizations</h2>
+    <h2>Interactive Visualizations with Observable</h2>
 
     <p>
-      Modern web technologies allow us to go beyond static images. Below is an interactive visualization created with D3.js, demonstrating how we can embed live, reactive content within our essays.
+      Modern web technologies allow us to go beyond static images. Below is an interactive visualization powered by <em>Observable</em><Sidenote>Observable (observablehq.com) is a platform for reactive, interactive JavaScript notebooks. Its runtime can be embedded in any web page.</Sidenote>, demonstrating how we can embed live, reactive content within our essays. Try adjusting the frequency slider to see the sine wave update in real-time.
     </p>
 
     <figure>
-      <div bind:this={chartContainer} style="margin: 2rem 0;"></div>
+      <InteractiveChart />
       <figcaption>
-        <strong>Figure 1:</strong> A sinusoidal pattern with random noise. The data is generated programmatically and rendered using D3.js. Notice how the visualization integrates seamlessly with the typography.
+        <strong>Figure 1:</strong> An interactive sine wave visualization. The frequency can be adjusted using the slider above the chart. This demonstrates Observable's reactive programming model—when you change the input, the visualization automatically updates.
       </figcaption>
     </figure>
 
@@ -245,14 +92,14 @@
       </tbody>
     </table>
 
-    <h2>Observable Integration</h2>
+    <h2>The Power of Reactive Documents</h2>
 
     <p>
-      The true innovation of this design is the integration of Observable's runtime<MarginNote>Observable (observablehq.com) is a platform for creating interactive, reactive notebooks using JavaScript.</MarginNote>. This allows us to embed reactive, interactive computations directly in our essays, making them living documents that readers can explore and manipulate.
+      The true innovation of this design is the integration of Observable's runtime. This allows us to embed reactive, interactive computations directly in our essays, making them living documents<MarginNote>Bret Victor has long advocated for "explorable explanations"—documents where readers can immediately see the consequences of changing assumptions.</MarginNote> that readers can explore and manipulate.
     </p>
 
     <p>
-      Unlike traditional static documents, these essays can respond to reader input, update visualizations in real-time, and demonstrate concepts through interaction rather than mere description. This bridges the gap between explanation and exploration.
+      Unlike traditional static documents, these essays can respond to reader input, update visualizations in real-time, and demonstrate concepts through interaction rather than mere description. The visualization above exemplifies this: it's not a static image but a live computation that reacts to your input.
     </p>
 
     <h2>Conclusion</h2>
