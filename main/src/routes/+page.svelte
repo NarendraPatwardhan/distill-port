@@ -168,17 +168,67 @@ const createUser = (name: string, email: string): User => {
 
   <Figure layout="page">
     {#snippet children()}
-      <svg width="100%" height="200" viewBox="0 0 800 200">
-        <rect width="800" height="200" fill="#f0f0f0" />
-        <circle cx="100" cy="100" r="50" fill="#4285f4" />
-        <rect x="200" y="50" width="100" height="100" fill="#ea4335" />
-        <polygon points="450,50 400,150 500,150" fill="#fbbc04" />
-        <ellipse cx="650" cy="100" rx="80" ry="50" fill="#34a853" />
+      <svg width="100%" height="300" viewBox="0 0 800 300" style="background: white;">
+        <!-- Grid lines -->
+        <defs>
+          <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+            <path d="M 40 0 L 0 0 0 40" fill="none" stroke="#f0f0f0" stroke-width="1"/>
+          </pattern>
+        </defs>
+        <rect width="800" height="300" fill="url(#grid)" />
+
+        <!-- Data visualization: A simple line chart -->
+        <g transform="translate(60, 40)">
+          <!-- Axes -->
+          <line x1="0" y1="200" x2="700" y2="200" stroke="#333" stroke-width="2"/>
+          <line x1="0" y1="0" x2="0" y2="200" stroke="#333" stroke-width="2"/>
+
+          <!-- Y-axis labels -->
+          <text x="-10" y="5" text-anchor="end" font-size="12" fill="#666">100</text>
+          <text x="-10" y="105" text-anchor="end" font-size="12" fill="#666">50</text>
+          <text x="-10" y="205" text-anchor="end" font-size="12" fill="#666">0</text>
+
+          <!-- X-axis labels -->
+          <text x="0" y="220" text-anchor="middle" font-size="12" fill="#666">0</text>
+          <text x="175" y="220" text-anchor="middle" font-size="12" fill="#666">25</text>
+          <text x="350" y="220" text-anchor="middle" font-size="12" fill="#666">50</text>
+          <text x="525" y="220" text-anchor="middle" font-size="12" fill="#666">75</text>
+          <text x="700" y="220" text-anchor="middle" font-size="12" fill="#666">100</text>
+
+          <!-- Data line (smoothly curved) -->
+          <path
+            d="M 0,150 Q 100,100 175,80 T 350,60 Q 450,50 525,70 T 700,100"
+            fill="none"
+            stroke="#4285f4"
+            stroke-width="3"
+            stroke-linecap="round"
+          />
+
+          <!-- Data points -->
+          <circle cx="0" cy="150" r="4" fill="#4285f4"/>
+          <circle cx="175" cy="80" r="4" fill="#4285f4"/>
+          <circle cx="350" cy="60" r="4" fill="#4285f4"/>
+          <circle cx="525" cy="70" r="4" fill="#4285f4"/>
+          <circle cx="700" cy="100" r="4" fill="#4285f4"/>
+
+          <!-- Confidence interval -->
+          <path
+            d="M 0,170 Q 100,120 175,95 T 350,75 Q 450,65 525,85 T 700,115
+               L 700,85 Q 625,55 525,55 T 350,45 Q 250,40 175,65 T 0,130 Z"
+            fill="#4285f4"
+            opacity="0.1"
+          />
+
+          <!-- Axis labels -->
+          <text x="350" y="250" text-anchor="middle" font-size="14" fill="#333" font-weight="500">Epoch</text>
+          <text x="-30" y="100" text-anchor="middle" font-size="14" fill="#333" font-weight="500" transform="rotate(-90, -30, 100)">Accuracy (%)</text>
+        </g>
       </svg>
     {/snippet}
     {#snippet caption()}
-      <strong>Figure 1:</strong> A simple SVG visualization demonstrating the figure component
-      with a page-width layout. Figures support captions with rich formatting.
+      <strong>Figure 1:</strong> Training accuracy over epochs with confidence intervals.
+      The shaded region represents the standard deviation across multiple runs.
+      This demonstrates how figures can contain elegant data visualizations.
     {/snippet}
   </Figure>
 
